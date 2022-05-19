@@ -87,6 +87,8 @@ namespace Assignment4_Form
 
 
             Monitor.PulseAll(lockObj);  //awake all threads
+            Thread.Sleep(300);
+            Monitor.Exit(lockObj);
         }
         public string ReadData()
         {
@@ -94,7 +96,6 @@ namespace Assignment4_Form
 
             Monitor.Enter(lockObj);
 
-            readerCount++;
 
             //Condition Sych - if the readerPos is not full (no data)
             //block (go to sleep inside the monitor)
@@ -104,7 +105,6 @@ namespace Assignment4_Form
             //read data and mark the position
             data = strArr[readPos];
 
-            readerCount--;
             Thread.Sleep(10);
             status[readPos] = BufferStatus.Empty;
             readPos = (readPos + 1) % strArr.Length;
@@ -112,6 +112,8 @@ namespace Assignment4_Form
             Debug.WriteLine($"{Thread.CurrentThread.Name:10} :{data}! at pos [{readPos}]");
 
             Monitor.PulseAll(lockObj); //awake all waiting threds
+            Thread.Sleep(300);
+            Monitor.Exit(lockObj);
 
             return data;
         }
@@ -142,6 +144,8 @@ namespace Assignment4_Form
             Debug.WriteLine($"{Thread.CurrentThread.ToString():-15} :{s} at pos [{writePos}]");
 
             Monitor.PulseAll(lockObj);  //awake all threads
+            Thread.Sleep(300);
+            Monitor.Exit(lockObj);
 
         }
     }
