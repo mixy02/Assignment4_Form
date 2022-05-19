@@ -18,7 +18,7 @@ namespace Assignment4_Form
         private RichTextBox rtxtBox, rtxtTarget;
         private string findString, replaceString;
         private bool notify;
-        private object lockObj;
+        private object[] lockObjs;
 
         private delegate void Marker();
         private delegate void Selector();
@@ -53,7 +53,12 @@ namespace Assignment4_Form
             writePos = 0;
             readPos = 0;
 
-            lockObj = new object();
+            lockObjs = new object[max];
+
+            for (int i = 0; i < lockObjs.Length; i++)
+            {
+                lockObjs[i] = new object();
+            }
 
             writer = new Writer(this, textIn);
             reader = new Reader(this, elements, rtxtTarget);
@@ -65,11 +70,11 @@ namespace Assignment4_Form
         }
         public void Modify()
         {
-            //Monitor.Enter(lockObj);
+            Monitor.Enter(lockObjs[findPos]);
 
             while (status[findPos] != BufferStatus.Full)
             {
-                Thread.Sleep(5);
+                Monitor.Wait(lockObjs[findPos]);
             }
 
             //replace the word if it match
@@ -83,39 +88,36 @@ namespace Assignment4_Form
 
             Debug.WriteLine($"{Thread.CurrentThread.ToString():-15} :{strArr[findPos]} at pos [{findPos}]");
 
+            Monitor.PulseAll(lockObjs[findPos]);  //awake all threads
+            Monitor.Exit(lockObjs[findPos]);
+
             findPos = (findPos + 1) % strArr.Length;
-
-
-            //Monitor.PulseAll(lockObj);  //awake all threads
         }
         public string ReadData()
         {
             string data = string.Empty;
 
             //lock (lockObj)  //same as Monitor Enter
-
-            readerCount++;
+            Monitor.Enter(lockObjs[readPos]);
 
             //Condition Sych - if the readerPos is not full (no data)
             //block (go to sleep inside the monitor)
             while (status[readPos] != BufferStatus.New)
             {
-                Thread.Sleep(5);
+                Monitor.Wait(lockObjs[readPos]);
             }
-
 
             //read data and mark the position
             data = strArr[readPos];
 
             Thread.Sleep(10);
-            readerCount--;
             status[readPos] = BufferStatus.Empty;
-
-            readPos = (readPos + 1) % strArr.Length;
 
             Debug.WriteLine($"{Thread.CurrentThread.Name:10} :{data}! at pos [{readPos}]");
 
-            //Monitor.PulseAll(lockObj); //awake all waiting threads
+            Monitor.PulseAll(lockObjs[readPos]); //awake all waiting threads
+            Monitor.Exit(lockObjs[readPos]);
+            readPos = (readPos + 1) % strArr.Length;
 
             return data;
         }
@@ -129,11 +131,11 @@ namespace Assignment4_Form
         }
         public void WriteData(string s)
         {
-            //Monitor.Enter(lockObj);
+            Monitor.Enter(lockObjs[writePos]);
 
             while (status[writePos] != BufferStatus.Empty)
             {
-                Thread.Sleep(5);
+                Monitor.Wait(lockObjs[writePos]);
             }
 
             //write data, mark the position as full
@@ -141,11 +143,14 @@ namespace Assignment4_Form
             Thread.Sleep(10);
             status[writePos] = BufferStatus.Full;
 
-            writePos = (writePos + 1) % strArr.Length;
 
             Debug.WriteLine($"{Thread.CurrentThread.ToString():-15} :{s} at pos [{writePos}]");
 
-            //Monitor.PulseAll(lockObj);  //awake all threads
+
+            Monitor.PulseAll(lockObjs[writePos]);  //awake all threads
+            Monitor.Exit(lockObjs[writePos]);
+
+            writePos = (writePos + 1) % strArr.Length;
 
         }
     }
