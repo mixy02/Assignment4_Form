@@ -73,7 +73,7 @@ namespace Assignment4_Form
             }
 
             //replace the word if it match
-            if(strArr[findPos] == findString)
+            if (strArr[findPos] == findString)
             {
                 strArr[findPos] = replaceString;
             }
@@ -88,37 +88,31 @@ namespace Assignment4_Form
 
             Monitor.PulseAll(lockObj);  //awake all threads
         }
-        public string ReadData(out bool lastReader)
+        public string ReadData()
         {
             string data = string.Empty;
-            lastReader = false;
 
-            lock (lockObj)  //same as Monitor Enter
-            {
-                readerCount++;
+            Monitor.Enter(lockObj);
 
-                //Condition Sych - if the readerPos is not full (no data)
-                //block (go to sleep inside the monitor)
-                while (status[readPos] != BufferStatus.New)
-                    Monitor.Wait(lockObj);
+            readerCount++;
 
-                //read data and mark the position
-                data = strArr[readPos];
+            //Condition Sych - if the readerPos is not full (no data)
+            //block (go to sleep inside the monitor)
+            while (status[readPos] != BufferStatus.New)
+                Monitor.Wait(lockObj);
 
-                readerCount--;
+            //read data and mark the position
+            data = strArr[readPos];
 
-                Debug.WriteLine($"{Thread.CurrentThread.Name:10} :{data}! at pos [{readPos}]");
+            readerCount--;
+            Thread.Sleep(10);
+            status[readPos] = BufferStatus.Empty;
+            readPos = (readPos + 1) % strArr.Length;
 
-                if (readerCount == 0)
-                {
-                    Thread.Sleep(10);
-                    status[readPos] = BufferStatus.Empty;
-                    readPos = (readPos + 1) % strArr.Length;
-                    lastReader = true;
-                }
+            Debug.WriteLine($"{Thread.CurrentThread.Name:10} :{data}! at pos [{readPos}]");
 
-                Monitor.PulseAll(lockObj); //awake all waiting threds
-            }
+            Monitor.PulseAll(lockObj); //awake all waiting threds
+
             return data;
         }
         public string ReplaceAt(string strSource, string strReplace, int pos, int size)
