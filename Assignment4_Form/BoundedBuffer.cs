@@ -69,12 +69,11 @@ namespace Assignment4_Form
 
             while (status[findPos] != BufferStatus.Full)
             {
-                //Monitor.Wait(lockObj);  //condition synchronization
-                
+                Thread.Sleep(5);
             }
 
             //replace the word if it match
-            if(strArr[findPos] == findString)
+            if (strArr[findPos] == findString)
             {
                 strArr[findPos] = replaceString;
             }
@@ -94,30 +93,30 @@ namespace Assignment4_Form
             string data = string.Empty;
 
             //lock (lockObj)  //same as Monitor Enter
+
+            readerCount++;
+
+            //Condition Sych - if the readerPos is not full (no data)
+            //block (go to sleep inside the monitor)
+            while (status[readPos] != BufferStatus.New)
             {
-                readerCount++;
-
-                //Condition Sych - if the readerPos is not full (no data)
-                //block (go to sleep inside the monitor)
-                while (status[readPos] != BufferStatus.New)
-                {
-                    //Monitor.Wait(lockObj);
-                }
-
-
-                //read data and mark the position
-                data = strArr[readPos];
-
-                Thread.Sleep(10);
-                readerCount--;
-                status[readPos] = BufferStatus.Empty;
-
-                readPos = (readPos + 1) % strArr.Length;
-
-                Debug.WriteLine($"{Thread.CurrentThread.Name:10} :{data}! at pos [{readPos}]");
-
-                //Monitor.PulseAll(lockObj); //awake all waiting threds
+                Thread.Sleep(5);
             }
+
+
+            //read data and mark the position
+            data = strArr[readPos];
+
+            Thread.Sleep(10);
+            readerCount--;
+            status[readPos] = BufferStatus.Empty;
+
+            readPos = (readPos + 1) % strArr.Length;
+
+            Debug.WriteLine($"{Thread.CurrentThread.Name:10} :{data}! at pos [{readPos}]");
+
+            //Monitor.PulseAll(lockObj); //awake all waiting threads
+
             return data;
         }
         public string ReplaceAt(string strSource, string strReplace, int pos, int size)
@@ -134,7 +133,7 @@ namespace Assignment4_Form
 
             while (status[writePos] != BufferStatus.Empty)
             {
-                //Monitor.Wait(lockObj);  //condition synchronization
+                Thread.Sleep(5);
             }
 
             //write data, mark the position as full
