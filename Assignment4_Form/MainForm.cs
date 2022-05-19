@@ -128,18 +128,6 @@ namespace Assignment4_Form
             string findWord = txtFind.Text;
             string replaceWord = txtReplace.Text;
 
-            var logFile = File.ReadAllLines(dlgOpen.FileName);
-            var logList = new List<string>(logFile);
-
-            //string file = $@"C:\Users\molli\Downloads\{dlgOpen.FileName}";
-
-            //Debug.WriteLine(file);
-
-            //rtxtSource.Find("att");
-            //Debug.WriteLine(rtxtSource.Find("to"));
-
-            Debug.WriteLine(findWord);
-
             string[] stringArr = rtxtSource.Text.Split(); //Splittar texten till en array.
             Debug.WriteLine(stringArr.Length);
 

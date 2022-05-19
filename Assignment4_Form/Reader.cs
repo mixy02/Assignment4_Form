@@ -34,7 +34,7 @@ namespace Assignment4_Form
         {
             while(!isFinished)
             {
-                stringList.Add(buffer.ReadData(out lastReader));
+                stringList.Add(buffer.ReadData());
                 Print();
 
                 if(stringList.Count >= count)
