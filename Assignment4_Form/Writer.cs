@@ -22,11 +22,17 @@ namespace Assignment4_Form
         }
         public void WriteLoop()
         {
-            foreach(string text in textToWrite)
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            // the code that you want to measure comes here
+            
+            foreach (string text in textToWrite)
             {
                 buffer.WriteData(text);
             }
 
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            System.Diagnostics.Debug.WriteLine(elapsedMs.ToString());
             //while (true)
             //{
             //    buffer.WriteData("s");

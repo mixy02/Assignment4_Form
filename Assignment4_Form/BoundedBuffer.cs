@@ -78,7 +78,7 @@ namespace Assignment4_Form
                 strArr[findPos] = replaceString;
             }
 
-            Thread.Sleep(10);
+            Thread.Sleep(100);
             status[findPos] = BufferStatus.New;
 
             Debug.WriteLine($"{Thread.CurrentThread.ToString():-15} :{strArr[findPos]} at pos [{findPos}]");
@@ -87,7 +87,7 @@ namespace Assignment4_Form
 
 
             Monitor.PulseAll(lockObj);  //awake all threads
-            Thread.Sleep(300);
+            //Thread.Sleep(300);
             Monitor.Exit(lockObj);
         }
         public string ReadData()
@@ -105,14 +105,14 @@ namespace Assignment4_Form
             //read data and mark the position
             data = strArr[readPos];
 
-            Thread.Sleep(10);
+            Thread.Sleep(100);
             status[readPos] = BufferStatus.Empty;
             readPos = (readPos + 1) % strArr.Length;
 
             Debug.WriteLine($"{Thread.CurrentThread.Name:10} :{data}! at pos [{readPos}]");
 
             Monitor.PulseAll(lockObj); //awake all waiting threds
-            Thread.Sleep(300);
+            //Thread.Sleep(300);
             Monitor.Exit(lockObj);
 
             return data;
@@ -136,7 +136,7 @@ namespace Assignment4_Form
 
             //write data, mark the position as full
             strArr[writePos] = s;
-            Thread.Sleep(10);
+            Thread.Sleep(100);
             status[writePos] = BufferStatus.Full;
 
             writePos = (writePos + 1) % strArr.Length;
@@ -144,7 +144,7 @@ namespace Assignment4_Form
             Debug.WriteLine($"{Thread.CurrentThread.ToString():-15} :{s} at pos [{writePos}]");
 
             Monitor.PulseAll(lockObj);  //awake all threads
-            Thread.Sleep(300);
+            //Thread.Sleep(300);
             Monitor.Exit(lockObj);
 
         }
